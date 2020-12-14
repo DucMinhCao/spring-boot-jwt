@@ -1,5 +1,6 @@
 package com.minhduc.jwt.config;
 
+import com.minhduc.jwt.filter.AuthenticationFilter;
 import com.minhduc.jwt.filter.JwtAuthFilter;
 import com.minhduc.jwt.service.UserService;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +53,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilterBefore(new JwtAuthFilter(authenticationManager(), userService), UsernamePasswordAuthenticationFilter.class);
+        http
+                .addFilter(new JwtAuthFilter(authenticationManager(), userService))
+                .addFilter(getAuthenticationFilter());
+    }
+
+    protected AuthenticationFilter getAuthenticationFilter() throws Exception {
+        final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager());
+        filter.setFilterProcessesUrl("/api/auth");
+        return filter;
     }
 }
